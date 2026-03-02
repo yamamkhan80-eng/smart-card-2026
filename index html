@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>স্মার্ট পরিবার কার্ড ২০২৬</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --primary: #006a4e; --secondary: #004b36; --red: #f42a41; --accent: #ffcc00; --bg: #f0f2f5; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Hind Siliguri', sans-serif; }
+        body { background-color: var(--bg); color: #333; height: 100vh; overflow: hidden; }
+
+        /* Splash Screen */
+        #splash { position: fixed; width: 100%; height: 100vh; background: var(--primary); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; transition: 0.5s; }
+        
+        .app-container { width: 100%; height: 100vh; display: flex; flex-direction: column; }
+        .screen { display: none; padding: 20px; flex: 1; overflow-y: auto; padding-bottom: 100px; animation: fadeIn 0.3s ease; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .top-nav { background: var(--primary); padding: 15px; display: flex; align-items: center; color: white; justify-content: space-between; position: sticky; top: 0; z-index: 1000; }
+        .ticker-wrap { background: #fff; color: var(--red); height: 30px; display: flex; align-items: center; font-weight: bold; font-size: 13px; border-bottom: 1px solid #ddd; overflow: hidden; }
+        .ticker-content { white-space: nowrap; animation: marquee 20s linear infinite; }
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-150%); } }
+
+        /* UI Cards */
+        .glass-card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid #eee; }
+        .hero-card { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; }
+        
+        /* Form Elements */
+        label { font-size: 12px; font-weight: bold; color: #666; display: block; margin-top: 10px; }
+        input, textarea { width: 100%; padding: 12px; border: 1.5px solid #eee; border-radius: 10px; margin-top: 5px; outline: none; background: #f9f9f9; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-red { background: var(--red); color: white; }
+        .btn-gold { background: var(--accent); color: #000; }
+
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; box-shadow: 0 -5px 10px rgba(0,0,0,0.05); }
+        .nav-item { text-align: center; color: #999; font-size: 11px; cursor: pointer; }
+        .nav-item.active { color: var(--primary); font-weight: bold; }
+        .nav-item i { font-size: 20px; display: block; margin-bottom: 3px; }
+
+        /* Admin List */
+        .admin-user-card { border-left: 5px solid var(--primary); }
+        .img-preview-row { display: flex; gap: 5px; margin-top: 10px; overflow-x: auto; }
+        .img-preview-row img { width: 60px; height: 45px; object-fit: cover; border-radius: 5px; border: 1px solid #ddd; }
+
+        #receipt-print { display: none; background: white; padding: 40px; border: 5px double var(--primary); }
+
+        /* Special Note Styles */
+        .special-note {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            color: #d84315;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            position: relative;
+            border: 1px solid #ffcc80;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: none;
+        }
+        .special-note .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #bf360c;
+            background: rgba(255,255,255,0.5);
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .balance-card { display: flex; justify-content: space-between; align-items: center; background: #e3f2fd; border: 1px solid #bbdefb; }
+        .copy-box { background: #eee; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-top: 5px; font-weight: bold; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+<audio id="app-tune" src="https://actions.google.com/sounds/v1/alarms/positive_notification.ogg" preload="auto"></audio>
+
+<div id="splash">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Government_Seal_of_Bangladesh.svg" width="80">
+    <h2 style="margin-top:15px;">স্মার্ট পরিবার কার্ড ২০২৬</h2>
+    <p>ICT ডিভিশন কর্তৃক নিয়ন্ত্রিত</p>
+</div>
+
+<div class="app-container">
+    <div class="top-nav">
+        <div style="display:flex; align-items:center; gap:8px;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Government_Seal_of_Bangladesh.svg" width="30">
+            <span style="font-weight:700;">পরিবার কার্ড</span>
+        </div>
+        <i class="fa-solid fa-user-circle" style="font-size:24px;"></i>
+    </div>
+
+    <div class="ticker-wrap">
+        <div class="ticker-content" id="moving-text">১৮ই মার্চ ২০২৬ ফলাফল প্রকাশ হবে। সকল আবেদন যাচাইধীন রয়েছে।</div>
+    </div>
+
+    <div id="login-screen" class="screen">
+        <div class="glass-card" style="margin-top: 10vh; text-align: center;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Government_Seal_of_Bangladesh.svg" width="60">
+            <h3 style="margin:15px 0;">লগইন করুন</h3>
+            <input type="tel" id="login-phone" placeholder="মোবাইল নম্বর (১১ ডিজিট)" maxlength="11">
+            <button class="btn btn-primary" style="margin-top:15px;" onclick="handleLogin()">প্রবেশ করুন <i class="fa-solid fa-sign-in"></i></button>
+        </div>
+    </div>
+
+    <div id="home-screen" class="screen">
+        <div class="hero-card">
+            <h2 id="welcome-user">স্বাগতম!</h2>
+            <p>আপনার আবেদন সফল হলে এখানে নোটিফিকেশন পাবেন।</p>
+        </div>
+
+        <div class="glass-card balance-card">
+            <div>
+                <span style="font-size: 12px; color: #555;">আমার ব্যালেন্স</span><br>
+                <b style="font-size: 20px; color: var(--primary);"><span id="user-balance-display">0</span> ৳</b>
+            </div>
+            <button class="btn btn-primary" style="width: auto; padding: 10px 20px; font-size: 14px; border-radius: 8px;" onclick="nav('deposit-screen')">
+                <i class="fa-solid fa-wallet"></i> ডিপোজিট
+            </button>
+        </div>
+
+        <div id="special-note-box" class="special-note">
+            <div class="close-btn" onclick="closeNote()"><i class="fa-solid fa-times"></i></div>
+            <h4 style="margin-bottom: 5px;"><i class="fa-solid fa-bell"></i> স্পেশাল নোটিশ</h4>
+            <p id="special-note-text" style="font-size: 14px; font-weight: 600;"></p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="glass-card" style="text-align:center; margin-bottom:0;" onclick="nav('apply-screen')">
+                <i class="fa-solid fa-file-alt" style="font-size:30px; color:var(--primary)"></i>
+                <p style="margin-top:8px;">নতুন আবেদন</p>
+                <span style="font-size:10px; color:var(--red);">ফি: ১৫০ ৳</span>
+            </div>
+            <div class="glass-card" style="text-align:center; margin-bottom:0;" onclick="nav('profile-screen')">
+                <i class="fa-solid fa-id-card" style="font-size:30px; color:var(--red)"></i>
+                <p style="margin-top:8px;">আমার কার্ড</p>
+            </div>
+        </div>
+
+        <div class="glass-card" style="margin-top:15px;" onclick="nav('admin-login')">
+            <i class="fa-solid fa-shield-halved"></i> অ্যাডমিন লগইন
+        </div>
+    </div>
+
+    <div id="deposit-screen" class="screen">
+        <h3 onclick="nav('home-screen')"><i class="fa-solid fa-arrow-left"></i> ব্যালেন্স ডিপোজিট</h3>
+        
+        <div class="glass-card" style="margin-top: 15px;">
+            <p style="font-size:13px; color:#555;">নিচের বিকাশ নম্বরে সেন্ড মানি করুন এবং Transaction ID টি সাবমিট করুন।</p>
+            <label>বিকাশ পার্সোনাল নম্বর:</label>
+            <div class="copy-box">
+                <span id="bkash-number">01814669672</span>
+                <i class="fa-solid fa-copy" style="color:var(--primary); font-size:18px; cursor:pointer;" onclick="copyNumber()"></i>
+            </div>
+            
+            <label style="margin-top:15px;">টাকার পরিমাণ</label>
+            <input type="number" id="dep-amount" placeholder="কত টাকা পাঠিয়েছেন?">
+            
+            <label>Transaction ID (TrxID)</label>
+            <input type="text" id="dep-trxid" placeholder="বিকাশের TrxID দিন">
+            
+            <button class="btn btn-primary" style="margin-top:20px;" onclick="submitDeposit()">সাবমিট করুন</button>
+        </div>
+
+        <h4 style="margin-top:20px;"><i class="fa-solid fa-clock-rotate-left"></i> ডিপোজিট হিস্ট্রি</h4>
+        <div id="user-deposit-history"></div>
+    </div>
+
+    <div id="apply-screen" class="screen">
+        <h3 onclick="nav('home-screen')"><i class="fa-solid fa-arrow-left"></i> আবেদন ফরম (ফি: ১৫০৳)</h3>
+        <div class="glass-card">
+            <label>আবেদনকারীর নাম</label>
+            <input type="text" id="app-name" placeholder="NID অনুযায়ী নাম">
+            
+            <label>পিতার নাম</label>
+            <input type="text" id="app-father" placeholder="পিতার নাম">
+            
+            <label>মাতার নাম</label>
+            <input type="text" id="app-mother" placeholder="মাতার নাম">
+            
+            <label>স্থায়ী ঠিকানা</label>
+            <textarea id="app-addr" placeholder="গ্রাম, উপজেলা, জেলা" rows="2"></textarea>
+
+            <label>পাসপোর্ট সাইজ ছবি</label>
+            <input type="file" id="u-photo" accept="image/*">
+            
+            <label>NID (Front & Back)</label>
+            <div style="display:flex; gap:10px;">
+                <input type="file" id="n-front" accept="image/*">
+                <input type="file" id="n-back" accept="image/*">
+            </div>
+
+            <button class="btn btn-primary" style="margin-top:20px;" onclick="saveApplication()">১৫০৳ দিয়ে আবেদন জমা দিন</button>
+        </div>
+    </div>
+
+    <div id="profile-screen" class="screen">
+        <h3 onclick="nav('home-screen')"><i class="fa-solid fa-arrow-left"></i> আবেদনের স্ট্যাটাস</h3>
+        <div id="user-status-area" style="margin-top:15px;"></div>
+    </div>
+
+    <div id="admin-login" class="screen">
+        <div class="glass-card" style="margin-top:10vh; text-align:center;">
+            <h3>অ্যাডমিন এক্সেস</h3>
+            <input type="password" id="ad-pass" placeholder="সিকিউরিটি পিন">
+            <button class="btn btn-red" style="margin-top:10px;" onclick="checkAdmin()">লগইন</button>
+        </div>
+    </div>
+
+    <div id="admin-dash" class="screen">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>অ্যাডমিন প্যানেল</h3>
+            <button class="btn-red" style="width:60px; padding:5px; font-size:12px; border-radius:5px;" onclick="nav('home-screen')">EXIT</button>
+        </div>
+
+        <div class="glass-card" style="margin-top:15px; background: #e8f5e9; border:1px solid #c8e6c9;">
+            <h4 style="color:var(--primary)"><i class="fa-solid fa-money-bill-transfer"></i> ব্যালেন্স ম্যানেজমেন্ট</h4>
+            <input type="tel" id="admin-user-phone" placeholder="ইউজারের মোবাইল নম্বর">
+            <input type="number" id="admin-user-amount" placeholder="টাকার পরিমাণ">
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button class="btn btn-primary" style="padding:10px; font-size:14px;" onclick="adminManageBalance('add')">টাকা যোগ করুন</button>
+                <button class="btn btn-red" style="padding:10px; font-size:14px;" onclick="adminManageBalance('remove')">টাকা কাটুন</button>
+            </div>
+        </div>
+        
+        <div class="glass-card" style="margin-top:15px;">
+            <label>নোটিশ আপডেট</label>
+            <input type="text" id="set-notice" placeholder="নতুন নোটিশ লিখুন...">
+            <button class="btn btn-primary" style="height:35px; font-size:12px; margin-top:5px;" onclick="updateNotice()">আপডেট</button>
+        </div>
+
+        <div class="glass-card" style="margin-top:15px; border-color: var(--accent);">
+            <label style="color: #d84315;">স্পেশাল নোট (ইউজারদের জন্য)</label>
+            <input type="text" id="set-special-notice" placeholder="স্পেশাল মেসেজ লিখুন...">
+            <button class="btn btn-gold" style="height:35px; font-size:12px; margin-top:5px;" onclick="updateSpecialNote()">নোট পাঠান</button>
+        </div>
+
+        <div id="admin-deposit-requests"></div>
+        <div id="admin-user-list"></div>
+    </div>
+
+    <nav class="bottom-nav" id="main-nav" style="display:none;">
+        <div class="nav-item active" onclick="nav('home-screen')"><i class="fa-solid fa-home"></i><span>হোম</span></div>
+        <div class="nav-item" onclick="nav('deposit-screen')"><i class="fa-solid fa-wallet"></i><span>ডিপোজিট</span></div>
+        <div class="nav-item" onclick="nav('apply-screen')"><i class="fa-solid fa-plus-circle"></i><span>আবেদন</span></div>
+        <div class="nav-item" onclick="nav('profile-screen')"><i class="fa-solid fa-user-check"></i><span>স্ট্যাটাস</span></div>
+    </nav>
+</div>
+
+<div id="receipt-print">
+    <div style="text-align:center;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Government_Seal_of_Bangladesh.svg" width="70">
+        <h2>গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</h2>
+        <p>ডিজিটাল পরিবার কার্ড প্রাপ্তি স্বীকার</p>
+    </div>
+    <hr style="margin:20px 0;">
+    <div style="display:flex; justify-content:space-between;">
+        <div id="pr-text"></div>
+        <div id="pr-img"></div>
+    </div>
+    <div style="margin-top:100px; display:flex; justify-content:space-between;">
+        <div style="border-top:1px solid #000; width:150px; text-align:center;">আবেদনকারীর স্বাক্ষর</div>
+        <div style="border-top:1px solid #000; width:150px; text-align:center;">অনুমোদনকারী</div>
+    </div>
+</div>
+
+<script>
+    let user = localStorage.getItem('userPhone');
+    let apps = JSON.parse(localStorage.getItem('apps')) || [];
+    let banned = JSON.parse(localStorage.getItem('banned')) || [];
+    let balances = JSON.parse(localStorage.getItem('balances')) || {};
+    let deposits = JSON.parse(localStorage.getItem('deposits')) || [];
+    
+    let notice = localStorage.getItem('siteNotice') || "১৮ই মার্চ ২০২৬ ফলাফল প্রকাশ হবে।";
+    let specialNote = localStorage.getItem('specialNote') || "";
+
+    function playAppTune() {
+        let tune = document.getElementById('app-tune');
+        tune.volume = 0.5;
+        tune.play().catch(e => console.log("Auto-play blocked"));
+    }
+
+    // Balance Helper Functions
+    function getUserBalance(phone) {
+        return balances[phone] || 0;
+    }
+
+    function updateUserBalance(phone, amount) {
+        balances[phone] = amount;
+        localStorage.setItem('balances', JSON.stringify(balances));
+        if(phone === user) {
+            document.getElementById('user-balance-display').innerText = amount;
+        }
+    }
+
+    window.onload = () => {
+        setTimeout(() => {
+            document.getElementById('splash').style.opacity = '0';
+            setTimeout(() => document.getElementById('splash').style.display='none', 500);
+            
+            document.getElementById('moving-text').innerText = notice;
+            
+            if(user) {
+                if(banned.includes(user)) {
+                    alert("আপনার এই নম্বরটি ব্যান করা হয়েছে!");
+                    localStorage.removeItem('userPhone');
+                    location.reload();
+                    return;
+                }
+                nav('home-screen');
+                document.getElementById('main-nav').style.display = 'flex';
+                document.getElementById('welcome-user').innerText = "হ্যালো, " + user;
+                updateUserBalance(user, getUserBalance(user)); // Init Balance View
+                playAppTune();
+                checkSpecialNote();
+            } else { nav('login-screen'); }
+        }, 2000);
+    };
+
+    function nav(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        
+        // Update specific screens when navigating to them
+        if(id === 'home-screen') { checkSpecialNote(); updateUserBalance(user, getUserBalance(user)); }
+        if(id === 'deposit-screen') loadUserDeposits();
+        if(id === 'admin-dash') { loadAdminList(); loadAdminDeposits(); }
+        if(id === 'profile-screen') loadUserStatus();
+        
+        // Update Bottom Nav Highlighting
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        if(id === 'home-screen') document.querySelectorAll('.nav-item')[0].classList.add('active');
+        if(id === 'deposit-screen') document.querySelectorAll('.nav-item')[1].classList.add('active');
+        if(id === 'apply-screen') document.querySelectorAll('.nav-item')[2].classList.add('active');
+        if(id === 'profile-screen') document.querySelectorAll('.nav-item')[3].classList.add('active');
+    }
+
+    function handleLogin() {
+        let p = document.getElementById('login-phone').value;
+        if(p.length === 11) {
+            localStorage.setItem('userPhone', p);
+            playAppTune();
+            location.reload();
+        } else { alert("১১ ডিজিটের নম্বর দিন!"); }
+    }
+
+    // --- Deposit Features ---
+    function copyNumber() {
+        let num = document.getElementById('bkash-number').innerText;
+        navigator.clipboard.writeText(num).then(() => {
+            alert("বিকাশ নম্বরটি কপি করা হয়েছে: " + num);
+        });
+    }
+
+    function submitDeposit() {
+        let amount = document.getElementById('dep-amount').value;
+        let trxid = document.getElementById('dep-trxid').value;
+
+        if(!amount || !trxid) return alert("দয়া করে টাকার পরিমাণ এবং Transaction ID প্রদান করুন!");
+
+        let newDep = {
+            id: "DEP" + Date.now(),
+            phone: user,
+            amount: parseInt(amount),
+            trxid: trxid,
+            status: "Pending",
+            date: new Date().toLocaleDateString()
+        };
+
+        deposits.push(newDep);
+        localStorage.setItem('deposits', JSON.stringify(deposits));
+        
+        alert("আপনার ডিপোজিট রিকোয়েস্ট সফলভাবে সাবমিট হয়েছে! অ্যাডমিন চেক করে ব্যালেন্স এড করে দিবে।");
+        document.getElementById('dep-amount').value = '';
+        document.getElementById('dep-trxid').value = '';
+        loadUserDeposits();
+    }
+
+    function loadUserDeposits() {
+        let historyDiv = document.getElementById('user-deposit-history');
+        let myDeps = deposits.filter(d => d.phone === user).reverse();
+
+        if(myDeps.length === 0) {
+            historyDiv.innerHTML = "<p style='text-align:center; color:#888; margin-top:10px;'>কোনো ডিপোজিট হিস্ট্রি নেই।</p>";
+            return;
+        }
+
+        let html = "";
+        myDeps.forEach(d => {
+            let color = d.status === 'Approved' ? 'green' : (d.status === 'Rejected' ? 'red' : 'orange');
+            html += `
+                <div class="glass-card" style="padding:15px; margin-bottom:10px; border-left:4px solid ${color};">
+                    <div style="display:flex; justify-content:space-between;">
+                        <b>${d.amount} ৳</b>
+                        <span style="color:${color}; font-weight:bold; font-size:12px;">${d.status}</span>
+                    </div>
+                    <p style="font-size:12px; color:#666; margin-top:5px;">TrxID: ${d.trxid} | Date: ${d.date}</p>
+                </div>
+            `;
+        });
+        historyDiv.innerHTML = html;
+    }
+
+    // --- Notes ---
+    function checkSpecialNote() {
+        let note = localStorage.getItem('specialNote');
+        let noteBox = document.getElementById('special-note-box');
+        if(note && note.trim() !== "") {
+            noteBox.style.display = 'block';
+            document.getElementById('special-note-text').innerText = note;
+        } else { noteBox.style.display = 'none'; }
+    }
+    function closeNote() { document.getElementById('special-note-box').style.display = 'none'; }
+
+    // --- Applications ---
+    async function saveApplication() {
+        // Balance Check first
+        let currentBalance = getUserBalance(user);
+        if(currentBalance < 150) {
+            alert(`আপনার ব্যালেন্সে পর্যাপ্ত টাকা নেই। আবেদন ফি ১৫০ টাকা। আপনার বর্তমান ব্যালেন্স: ${currentBalance} ৳। দয়া করে ব্যালেন্স ডিপোজিট করুন।`);
+            nav('deposit-screen');
+            return;
+        }
+
+        let name = document.getElementById('app-name').value;
+        let photo = document.getElementById('u-photo').files[0];
+        if(!name || !photo) return alert("নাম ও ছবি আবশ্যক!");
+
+        const to64 = file => new Promise(r => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => r(reader.result); });
+
+        let appData = {
+            phone: user,
+            name: name,
+            father: document.getElementById('app-father').value,
+            mother: document.getElementById('app-mother').value,
+            addr: document.getElementById('app-addr').value,
+            photo: await to64(photo),
+            nidF: document.getElementById('n-front').files[0] ? await to64(document.getElementById('n-front').files[0]) : "",
+            nidB: document.getElementById('n-back').files[0] ? await to64(document.getElementById('n-back').files[0]) : "",
+            status: "পেন্ডিং",
+            id: "FC" + Math.floor(100000 + Math.random()*900000)
+        };
+
+        // Deduct balance and Save
+        updateUserBalance(user, currentBalance - 150);
+        apps.push(appData);
+        localStorage.setItem('apps', JSON.stringify(apps));
+        
+        alert("আবেদন সফলভাবে জমা হয়েছে! আপনার ব্যালেন্স থেকে ১৫০ টাকা কেটে নেওয়া হয়েছে।");
+        nav('home-screen');
+    }
+
+    function loadUserStatus() {
+        let myApp = apps.find(a => a.phone === user);
+        let area = document.getElementById('user-status-area');
+        
+        if(!myApp) {
+            area.innerHTML = "<div class='glass-card' style='text-align:center;'>কোনো আবেদন পাওয়া যায়নি।</div>";
+        } else {
+            area.innerHTML = `
+                <div class="glass-card" style="text-align:center;">
+                    <img src="${myApp.photo}" width="100" style="border-radius:15px; border:2px solid var(--primary);">
+                    <h3 style="margin-top:10px;">${myApp.name}</h3>
+                    <p>স্ট্যাটাস: <b style="color:${myApp.status==='অনুমোদিত'?'green':'orange'}">${myApp.status}</b></p>
+                    <p style="font-size:12px; margin-top:5px;">আইডি: ${myApp.id}</p>
+                    <hr style="margin:15px 0;">
+                    ${myApp.status === 'অনুমোদিত' ? `<button class="btn btn-gold" onclick="printReceipt()">রিসিপ্ট ডাউনলোড</button>` : `<p style="color:red">অনুমোদিত হলে কার্ড ডাউনলোড করা যাবে।</p>`}
+                </div>
+            `;
+        }
+    }
+
+    // --- Admin Functions ---
+    function checkAdmin() {
+        if(document.getElementById('ad-pass').value === '1234') nav('admin-dash');
+        else alert("ভুল পিন!");
+    }
+
+    function adminManageBalance(type) {
+        let targetPhone = document.getElementById('admin-user-phone').value;
+        let amount = parseInt(document.getElementById('admin-user-amount').value);
+
+        if(!targetPhone || isNaN(amount) || amount <= 0) return alert("সঠিক মোবাইল নম্বর এবং পরিমাণ দিন!");
+
+        let currentTargetBalance = getUserBalance(targetPhone);
+
+        if(type === 'add') {
+            updateUserBalance(targetPhone, currentTargetBalance + amount);
+            alert(`${targetPhone} নম্বরে ${amount} টাকা যোগ করা হয়েছে!`);
+        } else if (type === 'remove') {
+            let finalBal = currentTargetBalance - amount;
+            if(finalBal < 0) finalBal = 0;
+            updateUserBalance(targetPhone, finalBal);
+            alert(`${targetPhone} নম্বর থেকে ${amount} টাকা কেটে নেওয়া হয়েছে!`);
+        }
+
+        document.getElementById('admin-user-amount').value = '';
+    }
+
+    function loadAdminDeposits() {
+        let div = document.getElementById('admin-deposit-requests');
+        let pendingDeps = deposits.map((d, index) => ({...d, originalIndex: index})).filter(d => d.status === 'Pending');
+
+        let html = `<h4 style="margin-top:20px; color:var(--primary);"><i class="fa-solid fa-bell"></i> ডিপোজিট রিকোয়েস্ট (${pendingDeps.length})</h4>`;
+        
+        if(pendingDeps.length === 0) html += "<p>কোনো পেন্ডিং রিকোয়েস্ট নেই।</p>";
+
+        pendingDeps.forEach(d => {
+            html += `
+                <div class="glass-card" style="margin-top:10px; border-left: 5px solid orange;">
+                    <p><b>User:</b> ${d.phone}</p>
+                    <p><b>Amount:</b> <span style="color:green; font-weight:bold;">${d.amount} ৳</span></p>
+                    <p><b>TrxID:</b> ${d.trxid}</p>
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <button class="btn btn-primary" style="padding:8px; font-size:12px;" onclick="handleDepositAdmin(${d.originalIndex}, 'Approve')">Approve</button>
+                        <button class="btn btn-red" style="padding:8px; font-size:12px;" onclick="handleDepositAdmin(${d.originalIndex}, 'Reject')">Reject</button>
+                    </div>
+                </div>
+            `;
+        });
+        div.innerHTML = html;
+    }
+
+    function handleDepositAdmin(index, action) {
+        let dep = deposits[index];
+        if(action === 'Approve') {
+            dep.status = 'Approved';
+            let currBal = getUserBalance(dep.phone);
+            updateUserBalance(dep.phone, currBal + dep.amount);
+            alert("ডিপোজিট অ্যাপ্রুভ হয়েছে এবং ইউজারের ব্যালেন্সে টাকা যুক্ত হয়েছে!");
+        } else {
+            dep.status = 'Rejected';
+            alert("ডিপোজিট রিজেক্ট করা হয়েছে!");
+        }
+        localStorage.setItem('deposits', JSON.stringify(deposits));
+        loadAdminDeposits();
+    }
+
+    function updateNotice() {
+        let n = document.getElementById('set-notice').value;
+        localStorage.setItem('siteNotice', n);
+        alert("নোটিশ আপডেট হয়েছে!");
+        location.reload();
+    }
+
+    function updateSpecialNote() {
+        let sn = document.getElementById('set-special-notice').value;
+        localStorage.setItem('specialNote', sn);
+        alert("স্পেশাল নোট ইউজারদের কাছে পাঠানো হয়েছে!");
+        document.getElementById('set-special-notice').value = '';
+    }
+
+    function loadAdminList() {
+        let list = document.getElementById('admin-user-list');
+        list.innerHTML = "<h4 style='margin-top:20px; color:var(--primary);'><i class='fa-solid fa-users'></i> আবেদনকারী তালিকা:</h4>";
+        apps.forEach((a, i) => {
+            list.innerHTML += `
+                <div class="glass-card admin-user-card" style="margin-top:10px;">
+                    <p><b>নাম: ${a.name}</b> (${a.phone})</p>
+                    <p>স্ট্যাটাস: <b>${a.status}</b></p>
+                    <div class="img-preview-row">
+                        <img src="${a.photo}"> <img src="${a.nidF}"> <img src="${a.nidB}">
+                    </div>
+                    <div style="margin-top:10px; display:flex; gap:10px;">
+                        <button class="btn btn-primary" style="height:30px; font-size:12px;" onclick="approveApp(${i})">Approve</button>
+                        <button class="btn btn-red" style="height:30px; font-size:12px;" onclick="deleteApp(${i})">Delete</button>
+                        <button class="btn btn-gold" style="height:30px; font-size:12px;" onclick="banUser('${a.phone}')">Ban</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function approveApp(i) {
+        apps[i].status = "অনুমোদিত";
+        localStorage.setItem('apps', JSON.stringify(apps));
+        loadAdminList();
+    }
+
+    function deleteApp(i) {
+        if(confirm("আবেদনটি কি স্থায়ীভাবে মুছে ফেলতে চান?")) {
+            apps.splice(i, 1);
+            localStorage.setItem('apps', JSON.stringify(apps));
+            loadAdminList();
+        }
+    }
+
+    function banUser(p) {
+        if(confirm("এই ইউজারকে কি ব্যান করতে চান?")) {
+            banned.push(p);
+            localStorage.setItem('banned', JSON.stringify(banned));
+            alert("ইউজার ব্যান করা হয়েছে!");
+        }
+    }
+
+    function printReceipt() {
+        let myApp = apps.find(a => a.phone === user);
+        document.getElementById('pr-text').innerHTML = `<h3>${myApp.name}</h3><p>পিতা: ${myApp.father}</p><p>মাতা: ${myApp.mother}</p><p>আইডি: ${myApp.id}</p><p>ঠিকানা: ${myApp.addr}</p>`;
+        document.getElementById('pr-img').innerHTML = `<img src="${myApp.photo}" width="120" style="border:1px solid #000">`;
+        
+        let content = document.getElementById('receipt-print').innerHTML;
+        let win = window.open('', '', 'width=800,height=600');
+        win.document.write('<html><body onload="window.print()">' + content + '</body></html>');
+        win.document.close();
+    }
+</script>
+
+</body>
+</html>
